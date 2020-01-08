@@ -1,0 +1,11 @@
+{
+  "name": "wordreplacetopdfserver",
+  "version": "1.0.0",
+  "description": "Server side part of application that reads word document, replace selected words inside that document and then saves it to pdf",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Haris Horozovic",
+  "license": "ISC"
+}
