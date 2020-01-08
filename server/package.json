@@ -4,8 +4,18 @@
   "description": "Server side part of application that reads word document, replace selected words inside that document and then saves it to pdf",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
   },
   "author": "Haris Horozovic",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.4",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mammoth": "^1.4.9",
+    "mongoose": "^4.13.20",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.2"
+  }
 }
