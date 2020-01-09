@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import './HomePage.styles.scss';
 
@@ -7,30 +8,80 @@ import Highlighter from 'react-highlight-words';
 import FormInput from '../../components/FormInput/FormInput.component';
 import CustomButton from '../../components/CustomButton/CustomButton.component';
 
+// Actions
+import {
+  uploadFile,
+  getFile,
+  replaceInFile
+} from '../../redux/files/file.actions';
+
 class HomePage extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
-      search: '',
+      fileForUpload: null,
+      forReplace: '',
       replaceWith: ''
     };
+  }
+
+  componentDidMount() {
+    if (!this.props.fileText) {
+      this.props.getFile();
+    }
   }
 
   handleChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  selectFile = e => {
+    this.setState({ fileForUpload: e.target.files[0] });
+  };
+
+  replaceTextClient = () => {
+    this.props.replaceInFile(this.state.forReplace, this.state.replaceWith);
+
+    this.setState({ forReplace: '', replaceWith: '' });
+  };
+
+  uploadFileClient = () => {
+    const data = new FormData();
+    data.append('wordfile', this.state.fileForUpload);
+
+    this.props.uploadFile(data);
+  };
+
   render() {
+    let text;
+    if (this.props.fileText) {
+      text = this.props.fileText.replace(/<\/p>/g, '');
+      text = this.props.fileText.replace(/<\/p>/g, '');
+      text = text.replace(/<\/strong>/g, '');
+      text = text.replace(/<strong>/g, '');
+      text = text.replace(/<\/a>/g, '');
+      text = text.replace(/<a>/g, '');
+
+      text = text.split('<p>');
+    }
+
     return (
       <div className='main-page'>
         <div className='sidebar'>
           <FormInput
+            type='file'
+            handleChange={this.selectFile}
+            name='wordfile'
+          ></FormInput>
+          <CustomButton handleClick={this.uploadFileClient}>
+            Upload File
+          </CustomButton>
+          <FormInput
             label='Search Text'
             handleChange={this.handleChange}
-            name='search'
-            value={this.state.search}
+            name='forReplace'
+            value={this.state.forReplace}
           />
           <FormInput
             label='Replace With'
@@ -38,7 +89,9 @@ class HomePage extends React.Component {
             handleChange={this.handleChange}
             value={this.state.replaceWith}
           />
-          <CustomButton>Replace</CustomButton>
+          <CustomButton handleClick={this.replaceTextClient}>
+            Replace
+          </CustomButton>
 
           <div className='button-group-download'>
             <CustomButton>Save as Word Document</CustomButton>
@@ -46,17 +99,36 @@ class HomePage extends React.Component {
           </div>
         </div>
         <div className='file-content'>
-          <Highlighter
-            highlightClassName='YourHighlightClass'
-            searchWords={[this.state.search]}
-            autoEscape={true}
-            textToHighlight={this.state.text}
-          />
-          <p>{this.state.text}</p>
+          {text ? (
+            text.map(el => (
+              <p key={el}>
+                <Highlighter
+                  highlightClassName='YourHighlightClass'
+                  searchWords={[this.state.forReplace]}
+                  autoEscape={true}
+                  textToHighlight={el}
+                  caseSensitive
+                />
+              </p>
+            ))
+          ) : (
+            <p>Upload file to continue</p>
+          )}
         </div>
       </div>
     );
   }
 }
 
-export default HomePage;
+const mapDispatchToProps = dispatch => ({
+  uploadFile: file => dispatch(uploadFile(file)),
+  getFile: () => dispatch(getFile()),
+  replaceInFile: (forReplace, replaceWith) =>
+    dispatch(replaceInFile(forReplace, replaceWith))
+});
+
+const mapStateToProps = ({ file: { fileText } }) => ({
+  fileText
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

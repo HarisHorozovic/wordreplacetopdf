@@ -5,13 +5,14 @@
   align-items: center;
 
   .sidebar {
-    width: 50%;
+    width: 40vw;
     height: 100vh;
     background-color: red;
+    overflow-y: scroll;
   }
 
   .file-content {
-    width: 50%;
+    width: 60vw;
     height: 100vh;
     overflow-y: scroll;
     text-align: left;
