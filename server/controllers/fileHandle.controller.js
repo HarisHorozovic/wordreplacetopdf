@@ -3,12 +3,13 @@ const fs = require('fs');
 const multer = require('multer');
 const mammoth = require('mammoth');
 const replace = require('replace-in-file');
+const HtmlDocx = require('html-docx-js');
 
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
 // Read the file and send plain text as response
-const uploadFileAsRawText = (filename, res, next) => {
+const uploadFileAsHTML = (filename, res, next) => {
   // Take the currently uploaded doc
   const filePath = `${process.cwd()}/files/uploadedWord/${filename}`;
   const savePath = `${process.cwd()}/files/uploadedWord/${
@@ -45,6 +46,26 @@ const uploadFileAsRawText = (filename, res, next) => {
     );
 };
 
+//Convert HTML file to the word document
+const convertToWord = filename => {
+  fs.readFile(
+    `${process.cwd()}/files/uploadedWord/${filename.split('.')[0]}.html`,
+    'utf-8',
+    (err, html) => {
+      if (err) return next(new AppError('Something went wrong', 400));
+
+      var docx = HtmlDocx.asBlob(html);
+      fs.writeFile(
+        `${process.cwd()}/files/uploadedWord/${filename}`,
+        docx,
+        err => {
+          if (err) return next(new AppError('Something went wrong', 400));
+        }
+      );
+    }
+  );
+};
+
 // Multer file upload
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -54,8 +75,6 @@ const multerStorage = multer.diskStorage({
     cb(null, `file-${Date.now()}.${file.originalname.split('.').pop()}`);
   }
 });
-
-// ${file.originalname.split('.').pop()}?
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.split('.').includes('wordprocessingml')) {
@@ -102,7 +121,7 @@ exports.returnRawText = (req, res, next) => {
   res.cookie('filename', req.file.filename, cookieOptions);
 
   //Use our function to return text from word file
-  uploadFileAsRawText(req.file.filename, res, next);
+  uploadFileAsHTML(req.file.filename, res, next);
 };
 
 // Replace text in the current file
@@ -141,4 +160,11 @@ exports.replaceText = catchAsync(async (req, res, next) => {
 
   // If there was a change move to the next middleware(getFile so we get our changed file text)
   next();
+});
+
+exports.downloadAsWord = catchAsync(async (req, res, next) => {
+  convertToWord(req.cookies.filename);
+
+  // Can put res.download in the if statement and if it is succesfull then we delete the file
+  res.download(`${process.cwd()}/files/uploadedWord/${req.cookies.filename}`);
 });

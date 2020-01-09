@@ -27,4 +27,9 @@ router
   .route('/text')
   .post(fileHandleController.replaceText, fileHandleController.getFile);
 
+// @method GET
+// @route /api/v1/files/word
+// @desc Upload new word file
+router.route('/word').get(fileHandleController.downloadAsWord);
+
 module.exports = router;
