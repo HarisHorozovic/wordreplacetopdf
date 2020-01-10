@@ -3,7 +3,8 @@ import { FileActionTypes } from './file.types';
 const INITIAL_STATE = {
   fileText: null,
   loading: true,
-  fileError: null
+  fileError: null,
+  download: null
 };
 
 const fileReducer = (state = INITIAL_STATE, action) => {
@@ -28,6 +29,13 @@ const fileReducer = (state = INITIAL_STATE, action) => {
         fileText: null,
         loading: false,
         fileError: action.payload
+      };
+    case FileActionTypes.DOWNLOAD_SUCCESFUL:
+      return {
+        ...state,
+        loading: false,
+        fileError: null,
+        download: 'Download is succesfull'
       };
     default:
       return state;

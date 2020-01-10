@@ -7,8 +7,10 @@
   .sidebar {
     width: 40vw;
     height: 100vh;
-    background-color: red;
+    background-color: #ddd;
     overflow-y: scroll;
+    scrollbar-width: none;
+    border-right: 1px solid #ccc;
   }
 
   .file-content {
@@ -17,5 +19,6 @@
     overflow-y: scroll;
     text-align: left;
     padding-left: 10px;
+    scrollbar-width: none;
   }
 }

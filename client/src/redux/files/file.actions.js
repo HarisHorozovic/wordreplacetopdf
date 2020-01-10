@@ -19,6 +19,13 @@ export const getFile = () => dispatch => {
     .catch(err => dispatch(setFileError(err.response.data)));
 };
 
+export const removeFile = () => dispatch => {
+  axios
+    .delete(`${apiUrl}/`, { withCredentials: true })
+    .then(() => dispatch(removeCurrentFile()))
+    .catch(err => dispatch(setFileError(err.response.data)));
+};
+
 export const replaceInFile = (forReplace, replaceWith) => dispatch => {
   axios
     .post(
@@ -30,11 +37,43 @@ export const replaceInFile = (forReplace, replaceWith) => dispatch => {
     .catch(err => dispatch(setFileError(err.response.data)));
 };
 
+export const downloadAsWord = () => dispatch => {
+  axios
+    .get(`${apiUrl}/word`, { withCredentials: true })
+    .then(() => {
+      window.open(`${apiUrl}/word`);
+      dispatch(downloadSuccess());
+    })
+    .catch(err => dispatch(setFileError(err.response.data)));
+};
+
+export const downloadAsPDF = () => dispatch => {
+  axios
+    .get(`${apiUrl}/pdf`, { withCredentials: true })
+    .then(() => {
+      window.open(`${apiUrl}/pdf`);
+      dispatch(downloadSuccess());
+    })
+    .catch(err => dispatch(setFileError(err.response.data)));
+};
+
 // State handling functions
 const setCurrentFile = data => {
   return {
     type: FileActionTypes.SET_FILE,
     payload: data
+  };
+};
+
+const removeCurrentFile = () => {
+  return {
+    type: FileActionTypes.REMOVE_FILE
+  };
+};
+
+const downloadSuccess = () => {
+  return {
+    type: FileActionTypes.DOWNLOAD_SUCCESFUL
   };
 };
 

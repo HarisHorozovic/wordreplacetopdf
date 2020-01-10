@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const fileHandleController = require('../controllers/fileHandle.controller');
+const fileController = require('../controllers/file.controller');
 
 // @method GET
 // @route /api/v1/files/
@@ -11,25 +11,38 @@ const fileHandleController = require('../controllers/fileHandle.controller');
 // @method POST
 // @route /api/v1/files/
 // @desc Upload new word file
+
+// @method DELETE
+// @route /api/v1/files/
+// @desc Remove the file from the FS and the cookie
 router
   .route('/')
-  .get(fileHandleController.getFile)
+  .get(fileController.getFile)
   .post(
-    fileHandleController.uploadSingleFile,
-    fileHandleController.returnRawText,
-    fileHandleController.getFile
-  );
+    fileController.removeBaseFile,
+    fileController.uploadSingleFile,
+    fileController.returnRawText,
+    fileController.getFile
+  )
+  .delete(fileController.removeBaseFile, fileController.deleteSuccess);
 
 // @method POST
 // @route /api/v1/files/text
 // @desc Upload new word file
-router
-  .route('/text')
-  .post(fileHandleController.replaceText, fileHandleController.getFile);
+router.route('/text').post(fileController.replaceText, fileController.getFile);
 
 // @method GET
 // @route /api/v1/files/word
 // @desc Upload new word file
-router.route('/word').get(fileHandleController.downloadAsWord);
+router
+  .route('/word')
+  .get(fileController.convertToWord, fileController.downloadAsWord);
+
+// @method GET
+// @route /api/v1/files/pdf
+// @desc Upload new PDF file
+router
+  .route('/pdf')
+  .get(fileController.convertToPDF, fileController.downloadAsPDF);
 
 module.exports = router;

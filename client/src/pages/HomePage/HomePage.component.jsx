@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import './HomePage.styles.scss';
 
 // Components
+import { ToastsContainer, ToastsStore } from 'react-toasts';
 import Highlighter from 'react-highlight-words';
 import FormInput from '../../components/FormInput/FormInput.component';
 import CustomButton from '../../components/CustomButton/CustomButton.component';
@@ -12,7 +13,10 @@ import CustomButton from '../../components/CustomButton/CustomButton.component';
 import {
   uploadFile,
   getFile,
-  replaceInFile
+  replaceInFile,
+  downloadAsWord,
+  downloadAsPDF,
+  removeFile
 } from '../../redux/files/file.actions';
 
 class HomePage extends React.Component {
@@ -29,6 +33,15 @@ class HomePage extends React.Component {
   componentDidMount() {
     if (!this.props.fileText) {
       this.props.getFile();
+    }
+  }
+
+  componentDidUpdate() {
+    // set up toasts for errors
+    if (this.props.fileError) {
+      this.props.fileError.status === 'fail'
+        ? ToastsStore.info(this.props.fileError.message)
+        : ToastsStore.error(this.props.fileError.message);
     }
   }
 
@@ -56,13 +69,10 @@ class HomePage extends React.Component {
   render() {
     let text;
     if (this.props.fileText) {
-      text = this.props.fileText.replace(/<\/p>/g, '');
-      text = this.props.fileText.replace(/<\/p>/g, '');
-      text = text.replace(/<\/strong>/g, '');
-      text = text.replace(/<strong>/g, '');
-      text = text.replace(/<\/a>/g, '');
-      text = text.replace(/<a>/g, '');
-
+      text = this.props.fileText.replace(
+        /<\/p>|<\/strong>|<strong>|<\/a>|<a>|<\/tr>|<tr>|<\/td>|<td>|<table>|<\/table>|<ul>|<\/ul>|<\/li>|<li>/g,
+        ''
+      );
       text = text.split('<p>');
     }
 
@@ -76,6 +86,9 @@ class HomePage extends React.Component {
           ></FormInput>
           <CustomButton handleClick={this.uploadFileClient}>
             Upload File
+          </CustomButton>
+          <CustomButton handleClick={() => this.props.removeFile()}>
+            Remove File
           </CustomButton>
           <FormInput
             label='Search Text'
@@ -94,14 +107,18 @@ class HomePage extends React.Component {
           </CustomButton>
 
           <div className='button-group-download'>
-            <CustomButton>Save as Word Document</CustomButton>
-            <CustomButton>Save as PDF document</CustomButton>
+            <CustomButton handleClick={() => this.props.downloadAsWord()}>
+              Save as Word Document
+            </CustomButton>
+            <CustomButton handleClick={() => this.props.downloadAsPDF()}>
+              Save as PDF document
+            </CustomButton>
           </div>
         </div>
         <div className='file-content'>
           {text ? (
-            text.map(el => (
-              <p key={el}>
+            text.map((el, i) => (
+              <p key={i}>
                 <Highlighter
                   highlightClassName='YourHighlightClass'
                   searchWords={[this.state.forReplace]}
@@ -112,9 +129,12 @@ class HomePage extends React.Component {
               </p>
             ))
           ) : (
-            <p>Upload file to continue</p>
+            <p>
+              Upload file to continue, once you are done, click on remove file
+            </p>
           )}
         </div>
+        <ToastsContainer store={ToastsStore} />
       </div>
     );
   }
@@ -124,11 +144,15 @@ const mapDispatchToProps = dispatch => ({
   uploadFile: file => dispatch(uploadFile(file)),
   getFile: () => dispatch(getFile()),
   replaceInFile: (forReplace, replaceWith) =>
-    dispatch(replaceInFile(forReplace, replaceWith))
+    dispatch(replaceInFile(forReplace, replaceWith)),
+  downloadAsWord: () => dispatch(downloadAsWord()),
+  downloadAsPDF: () => dispatch(downloadAsPDF()),
+  removeFile: () => dispatch(removeFile())
 });
 
-const mapStateToProps = ({ file: { fileText } }) => ({
-  fileText
+const mapStateToProps = ({ file: { fileText, fileError } }) => ({
+  fileText,
+  fileError
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
