@@ -14,11 +14,8 @@ const app = express();
 
 app.use(proxy(['/api/v1', { target: 'http://localhost:5000' }]));
 
-if (
-  process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'staging'
-) {
-  // Heroku build paths setup
+if (process.env.NODE_ENV !== 'development') {
+  // Heroku build path setup
   app.use(express.static(path.join(__dirname, './client/build')));
 
   app.get('*', (req, res) => {
