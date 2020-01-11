@@ -33,7 +33,7 @@ router.route('/text').post(fileController.replaceText, fileController.getFile);
 
 // @method GET
 // @route /api/v1/files/word
-// @desc Upload new word file
+// @desc Upload new word file for conversion
 router
   .route('/word')
   .get(fileController.convertToWord, fileController.downloadAsWord);
