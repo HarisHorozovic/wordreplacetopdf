@@ -2,8 +2,7 @@ import axios from 'axios';
 
 import { FileActionTypes } from './file.types';
 
-const apiUrl =
-  'https://enigmatic-garden-06901.herokuapp.com:17478/api/v1/files';
+const apiUrl = '/api/v1/files';
 
 // Axios route handlers
 export const uploadFile = file => dispatch => {
