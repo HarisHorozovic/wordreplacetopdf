@@ -12,8 +12,7 @@ const fileHandleRouter = require('./routes/fileHandle.routes');
 const app = express();
 
 // Heroku build paths setup
-// app.use(express.static(path.join(__dirname, '../client/build')));
-console.log(path.join(__dirname, './client/build'));
+app.use(express.static(path.join(__dirname, './client/build')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, './client/build', 'index.html'));
