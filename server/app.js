@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
@@ -9,6 +10,13 @@ const globalErrorHandler = require('./controllers/error.controller');
 const fileHandleRouter = require('./routes/fileHandle.routes');
 
 const app = express();
+
+// Heroku build paths setup
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
