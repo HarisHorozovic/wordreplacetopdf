@@ -19,7 +19,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, './client/build', 'index.html'));
 });
 
-app.use(proxy(['/api/v1', { target: 'http://localhost:5000' }]));
+app.use(proxy(['/api/v1'], { target: 'http://localhost:5000' }]));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
