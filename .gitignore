@@ -1,5 +1,6 @@
 # Server ignores
 node_modules
+config.env
 
 # Client ignores
 /client/node_modules
