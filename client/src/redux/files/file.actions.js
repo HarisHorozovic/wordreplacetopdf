@@ -39,20 +39,50 @@ export const replaceInFile = (forReplace, replaceWith) => dispatch => {
 
 export const downloadAsWord = () => dispatch => {
   axios
-    .get(`${apiUrl}/word`, { withCredentials: true })
-    .then(() => {
-      window.open(`${apiUrl}/word`);
-      dispatch(downloadSuccess());
+    .get(`${apiUrl}/word`, { withCredentials: true, responseType: 'blob' })
+    .then(res => {
+      const data = new Blob([res.data]);
+      if (typeof window.navigator.msSaveBlob === 'function') {
+        window.navigator.msSaveBlob(data, 'fileFromConvApp.docx');
+
+        dispatch(downloadSuccess());
+      } else {
+        const blob = data;
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'fileFromConvApp.docx';
+        document.body.appendChild(link);
+
+        link.click();
+
+        dispatch(downloadSuccess());
+      }
     })
     .catch(err => dispatch(setFileError(err.response.data)));
 };
 
 export const downloadAsPDF = () => dispatch => {
   axios
-    .get(`${apiUrl}/pdf`, { withCredentials: true })
-    .then(() => {
-      window.open(`${apiUrl}/pdf`);
-      dispatch(downloadSuccess());
+    .get(`${apiUrl}/pdf`, { withCredentials: true, responseType: 'blob' })
+    .then(res => {
+      const data = new Blob([res.data]);
+      console.log(data);
+      if (typeof window.navigator.msSaveBlob === 'function') {
+        window.navigator.msSaveBlob(data, 'fileFromConvApp.pdf');
+
+        dispatch(downloadSuccess());
+      } else {
+        const blob = data;
+        console.log('PDF Blob', blob);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'fileFromConvApp.pdf');
+        document.body.appendChild(link);
+
+        link.click();
+        dispatch(downloadSuccess());
+      }
     })
     .catch(err => dispatch(setFileError(err.response.data)));
 };
